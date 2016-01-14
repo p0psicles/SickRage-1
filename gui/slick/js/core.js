@@ -3447,11 +3447,12 @@ var SICKRAGE = {
         },
         imdbShows: function(){
         	debugger;
-            $.initRemoteShowGrid();
+            
 
             	function getList(listid) {
             		$.get(srRoot + '/addShows/imdbWatchlist?listid=' + listid, function (data) {
                         $('#container').html(data);
+                        $.initRemoteShowGrid();
                     });
             	}
             	
