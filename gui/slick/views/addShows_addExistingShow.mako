@@ -3,7 +3,6 @@
     import sickbeard
 %>
 <%block name="scripts">
-<script type="text/javascript" src="${srRoot}/js/qualityChooser.js?${sbPID}"></script>
 <script type="text/javascript" src="${srRoot}/js/addShowOptions.js?${sbPID}"></script>
 </%block>
 <%block name="content">
