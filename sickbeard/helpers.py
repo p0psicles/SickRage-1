@@ -1779,8 +1779,8 @@ def get_showname_from_indexer(indexer, indexer_id, lang='en'):
     t = sickbeard.indexerApi(indexer).indexer(**lINDEXER_API_PARMS)
     s = t[int(indexer_id)]
     
-    if hasattr(s,'data'):
-        return s.data.get('seriesname')
+    if hasattr(s, 'seriesname'):
+        return s['seriesname']
     
     return None
 
