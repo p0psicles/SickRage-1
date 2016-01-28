@@ -49,8 +49,8 @@ from sickbeard.webapi import function_mapper
 
 from sickbeard.imdbPopular import imdb_popular
 from helpers import get_showname_from_indexer
-from lib.anidbhttp import anidbquery
-from lib.anidbhttp.query import QUERY_HOT
+from anidbhttp import anidbquery
+from anidbhttp.query import QUERY_HOT
 
 from dateutil import tz
 from unrar2 import RarFile
@@ -2631,7 +2631,7 @@ class HomeAddShows(Home):
             all_anime = anidbquery.query(QUERY_HOT)
             mapped_anime = [ anime for anime in all_anime if anime.tvdbid ]
         except Exception as e:
-            # print traceback.fox1rmat_exc()
+            logger.log(u"exception: %s, full trace: %s" % (e, traceback.format_exc()), logger.WARNING)
             mapped_anime = None
 
         return t.render(title="Anidb Popular Anime", header="Anidb Popular Anime",
