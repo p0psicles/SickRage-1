@@ -21,7 +21,7 @@ import os
 import traceback
 import datetime
 from libtrakt.exceptions import traktException
-from libtrakt import TraktAPI
+from libtrakt.trakt import TraktApi
 
 import sickbeard
 from sickbeard import logger
@@ -63,7 +63,7 @@ def setEpisodeToWanted(show, s, e):
 
 class TraktChecker(object):
     def __init__(self):
-        self.trakt_api = TraktAPI(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT)
+        self.trakt_api = TraktApi(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT)
         self.todoBacklog = []
         self.todoWanted = []
         self.ShowWatchlist = {}

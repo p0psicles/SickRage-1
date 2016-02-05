@@ -22,7 +22,7 @@ import sickbeard
 from sickbeard import logger
 from sickrage.helper.exceptions import ex
 
-from libtrakt import TraktAPI
+from libtrakt.trakt import TraktRecommender
 from libtrakt.exceptions import traktException, traktServerBusy, traktAuthException
 
 
@@ -54,7 +54,11 @@ class Notifier(object):
         """
 
         trakt_id = sickbeard.indexerApi(ep_obj.show.indexer).config['trakt_id']
-        trakt_api = TraktAPI(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT)
+        # Create a trakt settings dict
+        trakt_settings = {"trakt_api_secret": sickbeard.TRAKT_API_SECRET, "trakt_api_key": sickbeard.TRAKT_API_KEY,
+                           "trakt_access_token": sickbeard.TRAKT_ACCESS_TOKEN, "trakt_api_url": sickbeard.TRAKT_API_URL,
+                           "trakt_auth_url": sickbeard.TRAKT_OAUTH_URL}
+        trakt_api = TraktRecommender(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT, **trakt_settings)
 
         if sickbeard.USE_TRAKT:
             try:
