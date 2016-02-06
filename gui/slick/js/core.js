@@ -2977,16 +2977,17 @@ var SICKRAGE = {
                     // If we are going to add an anime, let's by default configure it as one
                     var anime = $('#anime').prop('checked');
                     var configureShowOptions = $('#configure_show_options').prop('checked');
+                    
+                    /* Let's disable this for now, generates more questions then it saves the user time
                     if ( !configureShowOptions && $(this).data("isanime") ) {
                         anime = true;
                         configureShowOptions = true;
-                    }
+                    }*/
 
-                    $.get(url, {
+                    $.get(url + '?indexer_id=' + $(this).attr('data-indexer-id'), {
                         'root_dir': $('#rootDirs option:selected').val(),
                         'configure_show_options': configureShowOptions,
                         'indexer': $(this).attr('data-indexer'),
-                        'indexer_id': $(this).attr('data-indexer-id'),
                         'show_name': $(this).attr('data-show-name'),
                         'quality_preset': $('#qualityPreset').val(),
                         'default_status': $('#statusSelect').val(),
