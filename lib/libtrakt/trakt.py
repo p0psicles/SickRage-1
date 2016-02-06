@@ -123,7 +123,7 @@ class TraktApi(object):
             raise TraktConnectionException()
         except TraktTooManyRedirects:
             log.error(u"Too many redirections while connection to Trakt.")
-            raise TraktConnectionException()
+            raise TraktTooManyRedirects()
         except requests.RequestException as e:
             code = getattr(e.response, "status_code", None)
             if code == 502:
@@ -141,10 +141,8 @@ class TraktApi(object):
                 log.error(u"Trakt error (404) the resource does not exist: %s", url + path)
                 raise TraktResourceNotExistException(u"Trakt error (404) the resource does not exist: %s", url + path)
             else:
-                log.error(u"Could not connect to Trakt. Code error: %s", code)
-                raise TraktConnectionException(u"Could not connect to Trakt. Code error: %s", code)
-
-        return {}
+                log.error(u"Unknown Trakt request exception. Code error: %s", code)
+                return {}
 
         # check and confirm trakt call did not fail
         if isinstance(resp, dict) and resp.get("status", False) == "failure":
