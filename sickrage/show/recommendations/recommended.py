@@ -36,7 +36,7 @@ class RecommendedShow(object):
     Base class for show recommendations
     """
     def __init__(self, show_id, title, indexer, indexer_id, cache_subfolder=u'recommended',
-                 rating=None, votes=None, image_href=None, image_src=None):
+                 rating=None, votes=None, image_href=None, image_src=None, default_img_src=None):
         """
         Create a show recommendation
 
@@ -59,6 +59,7 @@ class RecommendedShow(object):
         self.votes = votes
         self.image_href = image_href
         self.image_src = image_src
+        self.default_img_src = default_img_src
 
         # Check if the show is currently already in the db
         self.show_in_list = self.indexer_id in {show.indexerid for show in sickbeard.showList if show.indexerid}
@@ -73,6 +74,10 @@ class RecommendedShow(object):
         if not self.cache_subfolder:
             return
 
+        # Only need the image filename
+        if '/' in image_url:
+            image_url = image_url.split('/')[-1]
+
         self.image_src = ek(posixpath.join, u'images', self.cache_subfolder, ek(os.path.basename, image_url))
 
         path = ek(os.path.abspath, ek(os.path.join, sickbeard.CACHE_DIR, u'images', self.cache_subfolder))
@@ -80,7 +85,10 @@ class RecommendedShow(object):
         if not ek(os.path.exists, path):
             ek(os.makedirs, path)
 
-        full_path = ek(posixpath.join, path, ek(os.path.basename, image_url))
+        full_path = ek(os.path.join, path, ek(os.path.basename, image_url))
 
         if not ek(os.path.isfile, full_path):
             helpers.download_file(image_url, full_path, session=self.session)
+
+    def __str__(self):
+        return 
