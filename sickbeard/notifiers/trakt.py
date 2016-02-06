@@ -23,7 +23,7 @@ from sickbeard import logger
 from sickrage.helper.exceptions import ex
 
 from libtrakt.trakt import TraktApi
-from libtrakt.exceptions import traktException, traktServerBusy, traktAuthException
+from libtrakt.exceptions import TraktException, TraktServerBusy, TraktAuthException
 
 
 class Notifier(object):
@@ -95,7 +95,7 @@ class Notifier(object):
                 # update library
                 trakt_api.request("sync/collection", data, method='POST')
 
-            except (traktException, traktAuthException, traktServerBusy) as e:
+            except (TraktException, TraktAuthException, TraktServerBusy) as e:
                 logger.log(u"Could not connect to Trakt service: %s" % ex(e), logger.WARNING)
 
     def update_watchlist(self, show_obj=None, s=None, e=None, data_show=None, data_episode=None, update="add"):
@@ -173,7 +173,7 @@ class Notifier(object):
 
                 trakt_api.request(trakt_url, data, method='POST')
 
-            except (traktException, traktAuthException, traktServerBusy) as e:
+            except (TraktException, TraktAuthException, TraktServerBusy) as e:
                 logger.log(u"Could not connect to Trakt service: %s" % ex(e), logger.WARNING)
                 return False
 
@@ -242,6 +242,6 @@ class Notifier(object):
                     return "Trakt blacklist doesn't exists"
             else:
                 return "Test notice sent successfully to Trakt"
-        except (traktException, traktAuthException, traktServerBusy) as e:
+        except (TraktException, TraktAuthException, TraktServerBusy) as e:
             logger.log(u"Could not connect to Trakt service: %s" % ex(e), logger.WARNING)
             return "Test notice failed to Trakt: %s" % ex(e)
