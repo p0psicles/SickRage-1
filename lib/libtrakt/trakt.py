@@ -44,13 +44,16 @@ class TraktApi(object):
         self.session = requests.Session()
         self.ssl_verify = certifi.where() if ssl_verify else False
         self.timeout = timeout if timeout else None
-        self.auth_url = auth_url
-        self.api_url = api_url
+        self.auth_url = trakt_settings.get('trakt_auth_url', 'https://trakt.tv/')  # oauth url
+        self.api_url = trakt_settings.get('trakt_api_url', 'https://api-v2launch.trakt.tv/')  # api url
         self.headers = headers
         self.trakt_settings = trakt_settings
 
-    def get_token(self, refresh_token=None, trakt_pin=None, refresh=False, count=0):
+    def get_token(self, refresh_token=None, trakt_pin=None, count=0, trakt_access_token=None):
         """function or refreshing a trakt token"""
+
+        if trakt_access_token:
+            self.trakt_access_token = trakt_access_token
 
         if count > 3:
             self.trakt_access_token = ""
@@ -59,12 +62,12 @@ class TraktApi(object):
             time.sleep(2)
 
         data = {
-            "client_id": self.trakt_settings['trakt_api_key'],
-            "client_secret": self.trakt_settings['trakt_api_secret'],
+            "client_id": self.trakt_settings.get('trakt_api_key'),
+            "client_secret": self.trakt_settings.get('trakt_api_secret'),
             "redirect_uri": "urn:ietf:wg:oauth:2.0:oob"
         }
 
-        if refresh and refresh_token:
+        if refresh_token:
             data["grant_type"] = "refresh_token"
             data["refresh_token"] = refresh_token
         else:
@@ -87,14 +90,17 @@ class TraktApi(object):
 
     def request(self, path, data=None, headers=None, url=None, method="GET", count=0):  # pylint: disable-msg=too-many-arguments,too-many-branches
         """function for performing the trakt request"""
-        if self.trakt_settings.get("trakt_access_token") == "" and count >= 2:
+        if not self.trakt_settings.get("trakt_access_token") and count >= 2:
             raise traktMissingTokenException(u"You must get a Trakt TOKEN. Check your Trakt settings")
 
-        if self.trakt_settings["trakt_access_token"] != "":
+        if headers is None:
+            headers = self.headers
+
+        if self.trakt_settings.get("trakt_access_token"):
             headers["Authorization"] = "Bearer " + self.trakt_settings.get("trakt_access_token")
 
         if url is None:
-            url = self.trakt_settings.get("trakt_api_url") or ""
+            url = self.api_url
 
         count = count + 1
 

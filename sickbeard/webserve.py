@@ -54,7 +54,7 @@ from sickrage.show.recommendations.trakt import TraktPopular
 from dateutil import tz
 from unrar2 import RarFile
 import adba
-# from libtrakt.trakt import TraktApi
+from libtrakt.trakt import TraktApi
 from libtrakt.exceptions import traktException
 from sickrage.helper.common import sanitize_filename, try_int, episode_num
 from sickrage.helper.encoding import ek, ss
@@ -1013,9 +1013,13 @@ class Home(WebRoot):
     @staticmethod
     def getTraktToken(trakt_pin=None):
 
-        trakt_api = (sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT)
-        response = trakt_api.traktToken(trakt_pin)
-        if response:
+        trakt_settings = {"trakt_api_key": sickbeard.TRAKT_API_KEY,
+                          "trakt_api_secret": sickbeard.TRAKT_API_SECRET}
+        trakt_api = TraktApi(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT, **trakt_settings)
+        (access_token, refresh_token) = trakt_api.get_token(sickbeard.TRAKT_REFRESH_TOKEN, trakt_pin=trakt_pin)
+        if access_token:
+            sickbeard.TRAKT_ACCESS_TOKEN = access_token
+            sickbeard.TRAKT_REFRESH_TOKEN = refresh_token
             return "Trakt Authorized"
         return "Trakt Not Authorized!"
 

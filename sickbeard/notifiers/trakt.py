@@ -22,7 +22,7 @@ import sickbeard
 from sickbeard import logger
 from sickrage.helper.exceptions import ex
 
-from libtrakt.trakt import TraktRecommender
+from libtrakt.trakt import TraktApi
 from libtrakt.exceptions import traktException, traktServerBusy, traktAuthException
 
 
@@ -58,7 +58,7 @@ class Notifier(object):
         trakt_settings = {"trakt_api_secret": sickbeard.TRAKT_API_SECRET, "trakt_api_key": sickbeard.TRAKT_API_KEY,
                            "trakt_access_token": sickbeard.TRAKT_ACCESS_TOKEN, "trakt_api_url": sickbeard.TRAKT_API_URL,
                            "trakt_auth_url": sickbeard.TRAKT_OAUTH_URL}
-        trakt_api = TraktRecommender(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT, **trakt_settings)
+        trakt_api = TraktApi(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT, **trakt_settings)
 
         if sickbeard.USE_TRAKT:
             try:
@@ -80,7 +80,7 @@ class Notifier(object):
 
                 if sickbeard.TRAKT_SYNC_WATCHLIST:
                     if sickbeard.TRAKT_REMOVE_SERIESLIST:
-                        trakt_api.traktRequest("sync/watchlist/remove", data, method='POST')
+                        trakt_api.request("sync/watchlist/remove", data, method='POST')
 
                 # Add Season and Episode + Related Episodes
                 data['shows'][0]['seasons'] = [{'number': ep_obj.season, 'episodes': []}]
@@ -90,10 +90,10 @@ class Notifier(object):
 
                 if sickbeard.TRAKT_SYNC_WATCHLIST:
                     if sickbeard.TRAKT_REMOVE_WATCHLIST:
-                        trakt_api.traktRequest("sync/watchlist/remove", data, method='POST')
+                        trakt_api.request("sync/watchlist/remove", data, method='POST')
 
                 # update library
-                trakt_api.traktRequest("sync/collection", data, method='POST')
+                trakt_api.request("sync/collection", data, method='POST')
 
             except (traktException, traktAuthException, traktServerBusy) as e:
                 logger.log(u"Could not connect to Trakt service: %s" % ex(e), logger.WARNING)
@@ -111,7 +111,7 @@ class Notifier(object):
         update: type o action add or remove
         """
 
-        trakt_api = TraktAPI(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT)
+        trakt_api = TraktApi(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT)
 
         if sickbeard.USE_TRAKT:
 
@@ -171,7 +171,7 @@ class Notifier(object):
                 if update == "remove":
                     trakt_url += "/remove"
 
-                trakt_api.traktRequest(trakt_url, data, method='POST')
+                trakt_api.request(trakt_url, data, method='POST')
 
             except (traktException, traktAuthException, traktServerBusy) as e:
                 logger.log(u"Could not connect to Trakt service: %s" % ex(e), logger.WARNING)
@@ -228,10 +228,12 @@ class Notifier(object):
         Returns: True if the request succeeded, False otherwise
         """
         try:
-            trakt_api = TraktAPI(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT)
-            trakt_api.validateAccount()
+            trakt_settings = {'trakt_access_token': sickbeard.TRAKT_ACCESS_TOKEN,
+                              'trakt_api_key': sickbeard.TRAKT_API_KEY}
+            trakt_api = TraktApi(sickbeard.SSL_VERIFY, sickbeard.TRAKT_TIMEOUT, **trakt_settings)
+            trakt_api.validate_account()
             if blacklist_name and blacklist_name is not None:
-                trakt_lists = trakt_api.traktRequest("users/" + username + "/lists")
+                trakt_lists = trakt_api.request("users/" + username + "/lists")
                 found = False
                 for trakt_list in trakt_lists:
                     if trakt_list['ids']['slug'] == blacklist_name:
