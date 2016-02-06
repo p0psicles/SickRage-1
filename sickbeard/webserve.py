@@ -55,7 +55,7 @@ from dateutil import tz
 from unrar2 import RarFile
 import adba
 from libtrakt.trakt import TraktApi
-from libtrakt.exceptions import traktException
+from libtrakt.exceptions import TraktException
 from sickrage.helper.common import sanitize_filename, try_int, episode_num
 from sickrage.helper.encoding import ek, ss
 from sickrage.helper.exceptions import CantRefreshShowException, CantUpdateShowException, ex
