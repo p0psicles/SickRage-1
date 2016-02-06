@@ -76,10 +76,6 @@ class RecommendedShow(object):
         if not self.cache_subfolder:
             return
 
-        # Only need the image filename
-#         if '/' in image_url:
-#             image_url = image_url.split('/')[-1]
-
         self.image_src = ek(posixpath.join, u'images', self.cache_subfolder, ek(os.path.basename, image_url))
 
         path = ek(os.path.abspath, ek(os.path.join, sickbeard.CACHE_DIR, u'images', self.cache_subfolder))

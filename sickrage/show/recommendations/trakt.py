@@ -23,7 +23,7 @@ from sickbeard import logger
 from sickrage.helper.common import try_int
 
 from libtrakt.trakt import TraktApi
-from libtrakt.exceptions import traktAuthException, traktException
+from libtrakt.exceptions import TraktAuthException, TraktException
 
 from sickrage.show.Show import Show
 from sickrage.helper.exceptions import ex
@@ -57,7 +57,7 @@ class TraktPopular(object):
     def fetch_and_refresh_token(self, trakt_api, path):
         try:
             library_shows = trakt_api.request(path) or []
-        except traktAuthException:
+        except TraktAuthException:
             logger.log(u"Refreshing Trakt token", logger.DEBUG)
             (access_token, refresh_token) = trakt_api.get_token(sickbeard.TRAKT_REFRESH_TOKEN)
             if access_token:
@@ -109,30 +109,29 @@ class TraktPopular(object):
                     if 'show' not in show:
                         show['show'] = show
 
-                    if not Show.find(sickbeard.showList, [int(show['show']['ids']['tvdb'])]):
-                        if sickbeard.TRAKT_ACCESS_TOKEN != '':
-                            if show['show']['ids']['tvdb'] not in (lshow['show']['ids']['tvdb']
-                                                                   for lshow in library_shows):
-                                if not_liked_show:
-                                    if show['show']['ids']['tvdb'] not in (show['show']['ids']['tvdb']
-                                                                           for show in not_liked_show if show['type'] == 'show'):
-                                        trending_shows.append(self._create_recommended_show(show))
-                                else:
-                                    trending_shows.append(self._create_recommended_show(show))
-                        else:
+                    if sickbeard.TRAKT_ACCESS_TOKEN != '':
+                        if show['show']['ids']['tvdb'] not in (lshow['show']['ids']['tvdb']
+                                                               for lshow in library_shows):
                             if not_liked_show:
                                 if show['show']['ids']['tvdb'] not in (show['show']['ids']['tvdb']
                                                                        for show in not_liked_show if show['type'] == 'show'):
                                     trending_shows.append(self._create_recommended_show(show))
                             else:
                                 trending_shows.append(self._create_recommended_show(show))
+                    else:
+                        if not_liked_show:
+                            if show['show']['ids']['tvdb'] not in (show['show']['ids']['tvdb']
+                                                                   for show in not_liked_show if show['type'] == 'show'):
+                                trending_shows.append(self._create_recommended_show(show))
+                        else:
+                            trending_shows.append(self._create_recommended_show(show))
 
                 except MultipleShowObjectsException:
                     continue
 
             blacklist = sickbeard.TRAKT_BLACKLIST_NAME not in ''
 
-        except traktException as e:
+        except TraktException as e:
             logger.log(u"Could not connect to Trakt service: %s" % ex(e), logger.WARNING)
 
         return (blacklist, trending_shows)
