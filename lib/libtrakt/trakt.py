@@ -22,11 +22,11 @@ import json
 import requests
 import certifi
 import logging
-from libtrakt.exceptions import (traktConnectionException, traktMissingTokenException, traktAuthException,
-                                 traktUnavailableException, traktResourceNotExistException, traktException,
-                                 traktTimeoutException)
+from libtrakt.exceptions import (TraktConnectionException, TraktMissingTokenException, TraktAuthException,
+                                 TraktUnavailableException, TraktResourceNotExistException, TraktException,
+                                 TraktTimeoutException, TraktTooManyRedirects)
 
-from model import RecommendedShow  # Next step is to map all results to show objects, so it can use one template
+# from model import RecommendedShow  # Next step is to map all results to show objects, so it can use one template
 
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
@@ -91,7 +91,7 @@ class TraktApi(object):
     def request(self, path, data=None, headers=None, url=None, method="GET", count=0):  # pylint: disable-msg=too-many-arguments,too-many-branches
         """function for performing the trakt request"""
         if not self.trakt_settings.get("trakt_access_token") and count >= 2:
-            raise traktMissingTokenException(u"You must get a Trakt TOKEN. Check your Trakt settings")
+            raise TraktMissingTokenException(u"You must get a Trakt TOKEN. Check your Trakt settings")
 
         if headers is None:
             headers = self.headers
@@ -115,44 +115,45 @@ class TraktApi(object):
 
             # convert response to json
             resp = resp.json()
+        except TraktTimeoutException:
+            log.warning(u"Timeout connecting to Trakt. Try to increase timeout value in Trakt settings")
+            raise traktTimeoutException(u"Timeout connecting to Trakt. Try to increase timeout value in Trakt settings")  # @UndefinedVariable
+        except TraktConnectionException:
+            log.error(u"Could not connect to Trakt.")
+            raise TraktConnectionException()
+        except TraktTooManyRedirects:
+            log.error(u"Too many redirections while connection to Trakt.")
+            raise TraktConnectionException()
         except requests.RequestException as e:
             code = getattr(e.response, "status_code", None)
-            if not code:
-                if "timed out" in e:
-                    log.warning(u"Timeout connecting to Trakt. Try to increase timeout value in Trakt settings")
-                    raise traktTimeoutException(u"Timeout connecting to Trakt. Try to increase timeout value in Trakt settings")  # @UndefinedVariable
-                # This is pretty much a fatal error if there is no status_code
-                # It means there basically was no response at all
-                else:
-                    log.debug(u"Could not connect to Trakt. Error: %s", e)
-                    raise traktException(u"Could not connect to Trakt. Error: {0}".format(e))  # @UndefinedVariable
-            elif code == 502:
+            if code == 502:
                 # Retry the request, cloudflare had a proxying issue
                 log.debug(u"Retrying trakt api request: %s", path)
                 return self.request(path, data, headers, url, method)
             elif code == 401:
                 log.warning(u"Unauthorized. Please check your Trakt settings")
-                raise traktAuthException(u"Unauthorized. Please check your Trakt settings")
+                raise TraktAuthException(u"Unauthorized. Please check your Trakt settings")
             elif code in (500, 501, 503, 504, 520, 521, 522):
                 # http://docs.trakt.apiary.io/#introduction/status-codes
                 log.debug(u"Trakt may have some issues and it's unavailable. Try again later please")
-                raise traktUnavailableException(u"Trakt may have some issues and it\'s unavailable. Try again later please")
+                raise TraktUnavailableException(u"Trakt may have some issues and it\'s unavailable. Try again later please")
             elif code == 404:
                 log.error(u"Trakt error (404) the resource does not exist: %s", url + path)
-                raise traktResourceNotExistException(u"Trakt error (404) the resource does not exist: %s", url + path)
+                raise TraktResourceNotExistException(u"Trakt error (404) the resource does not exist: %s", url + path)
             else:
                 log.error(u"Could not connect to Trakt. Code error: %s", code)
-                raise traktConnectionException(u"Could not connect to Trakt. Code error: %s", code)
-            return {}
+                raise TraktConnectionException(u"Could not connect to Trakt. Code error: %s", code)
+
+        return {}
 
         # check and confirm trakt call did not fail
         if isinstance(resp, dict) and resp.get("status", False) == "failure":
             if "message" in resp:
-                raise traktException(resp["message"])
+                raise TraktException(resp["message"])
             if "error" in resp:
-                raise traktException(resp["error"])
+                raise TraktException(resp["error"])
             else:
-                raise traktException("Unknown Error")
+                raise TraktException("Unknown Error")
 
         return resp
 
@@ -169,4 +170,4 @@ class TraktRecommender(TraktApi):
     """Trakt Recommended helper class, should only return A list of Trakt recommended shows. WIP"""
     def __init__(self, ssl_verify=True, timeout=30, **trakt_settings):
         self.trakt_settings = trakt_settings
-        super(TraktRecommender).__init__(timeout=timeout, ssl_verify=ssl_verify, **trakt_settings)
+        super(TraktRecommender, self).__init__(timeout=timeout, ssl_verify=ssl_verify, **trakt_settings)

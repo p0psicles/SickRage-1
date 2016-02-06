@@ -1,30 +1,38 @@
-class traktException(Exception):
+from requests.exceptions import (ConnectionError, Timeout, TooManyRedirects)
+
+
+class TraktException(Exception):
     pass
 
 
-class traktAuthException(traktException):
+class TraktAuthException(TraktException):
     pass
 
 
-class traktServerBusy(traktException):
+class TraktServerBusy(TraktException):
     pass
 
 
-class traktMissingTokenException(traktException):
+class TraktMissingTokenException(TraktException):
     pass
 
 
-class traktTimeoutException(traktException):
+class TraktTimeoutException(TraktException, Timeout):
     pass
 
 
-class traktUnavailableException(traktException):
+class TraktUnavailableException(TraktException):
     pass
 
 
-class traktResourceNotExistException(traktException):
+class TraktResourceNotExistException(TraktException):
     pass
 
 
-class traktConnectionException(traktException):
+class TraktConnectionException(TraktException, ConnectionError):
     pass
+
+
+class TraktTooManyRedirects(TraktException, TooManyRedirects):
+    pass
+ 
