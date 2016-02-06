@@ -86,7 +86,7 @@
                 <% cur_votes = cur_result.votes %>
             % endif
 
-            <div class="show-row" data-callback_id="${cur_result.indexer_id}" data-name="${cur_result.title}" data-rating="${cur_rating}" data-votes="${cur_votes}">
+            <div class="show-row" data-name="${cur_result.title}" data-rating="${cur_rating}" data-votes="${cur_votes}">
                 <div class="traktContainer">
                     <div class="trakt-image">
                         <a class="trakt-image" href="${anon_url(cur_result.image_href)}" target="_blank">
@@ -105,7 +105,7 @@
                             % if cur_result.show_in_list:
                                 <a href="${srRoot}/home/displayShow?show=${cur_result.indexer_id}" class="btn btn-xs">In List</a>
                             % else:
-                                <a href="${srRoot}/addShows/addShowByID" class="btn btn-xs" data-isanime="1" data-indexer="TVDB" data-indexer_id="${cur_result.indexer_id}" data-show_name="${cur_result.title | u}" data-add-show>Add Show</a>
+                                <a href="${srRoot}/addShows/addShowByID" class="btn btn-xs" data-isanime="1" data-indexer="TVDB" data-indexer-id="${cur_result.indexer_id}" data-show-name="${cur_result.title | u}" data-add-show>Add Show</a>
                             % endif
                         </div>
                     </div>

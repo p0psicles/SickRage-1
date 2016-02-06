@@ -3369,6 +3369,9 @@ var SICKRAGE = {
                     'Trakt timed out, refresh page to try again'
                 );
             });
+            
+            $.initAddShowById();
+            
         },
         popularShows: function(){
             $.initRemoteShowGrid();
