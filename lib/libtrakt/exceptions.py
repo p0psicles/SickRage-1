@@ -2,37 +2,42 @@ from requests.exceptions import (ConnectionError, Timeout, TooManyRedirects)
 
 
 class TraktException(Exception):
-    pass
+    """A Generic Trakt Exception"""
 
 
 class TraktAuthException(TraktException):
-    pass
+    """A Generic Trakt Authentication Exception"""
 
 
 class TraktServerBusy(TraktException):
-    pass
+    """A Generic Trakt Server Busy Exception"""
 
 
 class TraktMissingTokenException(TraktException):
-    pass
+    """A Generic Trakt Missing Token Exception"""
 
 
-class TraktTimeoutException(TraktException, Timeout):
-    pass
+class TraktIOError(TraktException, IOError):
+    """A Generic Trakt IOError Exception"""
+
+
+class TraktConnectionException(TraktIOError, ConnectionError):
+    """A Generic Trakt Connection Exception, inherited from TraktIOError and IOError"""
+
+
+class TraktTimeoutException(TraktIOError, Timeout):
+    """A Generic Trakt Timeout Exception, inherited from TraktIOError and IOError"""
 
 
 class TraktUnavailableException(TraktException):
-    pass
+    """A Generic Trakt Unavailable Exception,
+    possibly raised when Trakt is reachable but is showing an unavailable response code.
+    Possibly raised on in 500 series response codes"""
 
 
 class TraktResourceNotExistException(TraktException):
-    pass
-
-
-class TraktConnectionException(TraktException, ConnectionError):
-    pass
+    """A Generic Trakt Resource Not Exist Exception, possibly raised on 404"""
 
 
 class TraktTooManyRedirects(TraktException, TooManyRedirects):
-    pass
- 
+    """A Generic Trakt Too Many Redirects Exception"""
