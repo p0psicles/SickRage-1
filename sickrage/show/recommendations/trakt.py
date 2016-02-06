@@ -37,18 +37,20 @@ class TraktPopular(object):
     def __init__(self):
         self.cache_subfolder = __name__.split('.')[-1] if '.' in __name__ else __name__
         self.session = requests.Session()
+        self.recommender = "Trakt Popular"
+        self.default_img_src = 'http://www.trakt.tv/assets/placeholders/thumb/poster-2d5709c1b640929ca1ab60137044b152.png'
 
     def _create_recommended_show(self, show_obj):
         """creates the RecommendedShow object from the returned showobj"""
-        rec_show = RecommendedShow(show_obj['show']['ids'], show_obj['show']['title'],
+        rec_show = RecommendedShow(self,
+                                   show_obj['show']['ids'], show_obj['show']['title'],
                                    1,  # indexer
                                    show_obj['show']['ids']['tvdb'],
-                                   cache_subfolder=self.cache_subfolder,
                                    rating=str(try_int(show_obj['show']['rating'], 0) * 10),
                                    votes=str(try_int(show_obj['show']['votes'], 0)),
-                                   image_href='http://www.trakt.tv/shows/%s' % show_obj['show']['ids']['slug'],
-                                   default_img_src='http://www.trakt.tv/assets/placeholders/thumb/poster-2d5709c1b640929ca1ab60137044b152.png')
-        rec_show.cache_image(show_obj['show']['images']['poster']['thumb'])
+                                   image_href='http://www.trakt.tv/shows/%s' % show_obj['show']['ids']['slug'])
+
+        rec_show.cache_image(show_obj['show']['images']['poster']['thumb'] or self.default_img_src)
 
         return rec_show
 

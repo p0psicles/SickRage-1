@@ -2529,7 +2529,8 @@ class HomeAddShows(Home):
         Display the new show page which collects a tvdb id, folder, and extra options and
         posts them to addNewShow
         """
-        t = PageTemplate(rh=self, filename="trendingShows.mako")
+        e = None
+        t = PageTemplate(rh=self, filename="addShows_recommended.mako")
         if traktList is None:
             traktList = ""
 
@@ -2556,9 +2557,14 @@ class HomeAddShows(Home):
         else:
             page_url = "shows/anticipated"
 
-        (blacklist, trending_shows) = TraktPopular().fetch_popular_shows(page_url=page_url, trakt_list=traktList)
+        try:
+            (blacklist, recommended_shows) = TraktPopular().fetch_popular_shows(page_url=page_url, trakt_list=traktList)
+        except Exception as e:
+            # print traceback.format_exc()
+            recommended_shows = None
 
-        return t.render(blacklist=blacklist, trending_shows=trending_shows)
+        return t.render(blacklist=blacklist, recommended_shows=recommended_shows, exception=e,
+                        enable_anime_options=False)
 
     def popularShows(self):
         """
