@@ -77,7 +77,10 @@
         </div>
     % else:
         % for cur_result in recommended_shows:
-
+            
+            <% cur_rating = None %>
+            <% cur_votes = None %>
+             
             % if cur_result.rating:
                 <% cur_rating = cur_result.rating %>
             % endif

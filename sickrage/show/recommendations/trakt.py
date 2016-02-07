@@ -46,7 +46,7 @@ class TraktPopular(object):
                                    show_obj['show']['ids'], show_obj['show']['title'],
                                    1,  # indexer
                                    show_obj['show']['ids']['tvdb'],
-                                   rating=str(try_int(show_obj['show']['rating'], 0) * 10),
+                                   rating=str(show_obj['show']['rating']),
                                    votes=str(try_int(show_obj['show']['votes'], 0)),
                                    image_href='http://www.trakt.tv/shows/%s' % show_obj['show']['ids']['slug'])
 
