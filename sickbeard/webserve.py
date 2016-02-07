@@ -50,6 +50,7 @@ from sickbeard.webapi import function_mapper
 from sickbeard.imdbPopular import imdb_popular
 from sickbeard.helpers import get_showname_from_indexer
 from sickrage.show.recommendations.trakt import TraktPopular
+from sickrage.show.recommendations.anidb import AnidbPopular
 
 from dateutil import tz
 from unrar2 import RarFile
@@ -2563,8 +2564,7 @@ class HomeAddShows(Home):
             # print traceback.format_exc()
             recommended_shows = None
 
-        return t.render(blacklist=blacklist, recommended_shows=recommended_shows, exception=e,
-                        enable_anime_options=False)
+        return t.render(blacklist=blacklist, recommended_shows=recommended_shows, exception=e, enable_anime_options=False)
 
     def popularShows(self):
         """
@@ -2583,6 +2583,26 @@ class HomeAddShows(Home):
                         popular_shows=popular_shows, imdb_exception=e,
                         topmenu="home",
                         controller="addShows", action="popularShows")
+
+    def anidbPopular(self):
+        """
+        Fetches data from IMDB to show a list of popular shows.
+        """
+        t = PageTemplate(rh=self, filename="addShows_recommended.mako")
+        e = None
+
+        try:
+            all_anime = AnidbPopular().fetch_popular_shows()
+            recommended_shows = [anime for anime in all_anime if anime.indexer_id]
+        except Exception as e:
+            # print traceback.fox1rmat_exc()
+            recommended_shows = None
+
+        return t.render(title="Anidb Popular Anime", header="Anidb Popular Anime",
+                        recommended_shows=recommended_shows, exception=e, whitelist=[],
+                        blacklist=[], groups=[], topmenu="home", enable_anime_options=True,
+                        controller="addShows", action="recommendedShows")
+
 
     def addShowToBlacklist(self, indexer_id):
         # URL parameters

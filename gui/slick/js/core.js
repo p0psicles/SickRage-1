@@ -3353,6 +3353,8 @@ var SICKRAGE = {
                 'Loading recommended shows...',
                 'Trakt timed out, refresh page to try again'
             );
+            $.initAddShowById();
+            $.initRemoteShowGrid();
         },
         trendingShows: function(){
             $('#trendingShows').loadRemoteShows(
