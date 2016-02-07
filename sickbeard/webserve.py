@@ -2603,7 +2603,6 @@ class HomeAddShows(Home):
                         blacklist=[], groups=[], topmenu="home", enable_anime_options=True,
                         controller="addShows", action="recommendedShows")
 
-
     def addShowToBlacklist(self, indexer_id):
         # URL parameters
         data = {'shows': [{'ids': {'tvdb': indexer_id}}]}
