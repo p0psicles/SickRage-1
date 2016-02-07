@@ -25,10 +25,12 @@ import logging
 from sickrage.helper.common import try_int
 import xml.etree.ElementTree as ET
 
+from anidbhttp.model import Anime
 from anidbhttp.exceptions import (AnidbConnectionException, AnidbInvalidQueryParams, AnidbAuthException,
                                   AnidbUnavailableException, AnidbResourceNotExistException, AnidbException,
                                   AnidbTimeoutException, AnidbTooManyRedirects, AnidbParseError)
 from multiprocessing.connection import Client
+
 
 # from model import RecommendedShow  # Next step is to map all results to show objects, so it can use one template
 
@@ -67,6 +69,7 @@ class AnidbApi(object):
         self.api_url = 'http://api.anidb.net:9001/httpapi'
         self.headers = anidb_settings.get("headers", headers)
         self.anidb_settings = anidb_settings
+        self.namespace = "{http://www.w3.org/XML/1998/namespace}"
 
     def _request(self, params, data=None, headers=None, url=None, method='GET', count=0):  # pylint: disable-msg=too-many-arguments,too-many-branches
         """function for performing the anidb http api request"""
@@ -88,7 +91,7 @@ class AnidbApi(object):
             resp = ET.fromstring(resp.text)
         except AnidbTimeoutException:
             log.warning(u'Timeout connecting to Anidb. Try to increase timeout value in Anidb settings')
-            raise traktTimeoutException(u'Timeout connecting to Anidb. Try to increase timeout value in Anidb settings')  # @UndefinedVariable
+            raise AnidbTimeoutException(u'Timeout connecting to Anidb. Try to increase timeout value in Anidb settings')  # @UndefinedVariable
         except AnidbConnectionException:
             log.error(u'Could not connect to Anidb.')
             raise AnidbConnectionException()
@@ -109,8 +112,8 @@ class AnidbApi(object):
                 log.debug(u"Anidb may have some issues and it's unavailable. Try again later please")
                 raise AnidbUnavailableException(u"Anidb may have some issues and it\'s unavailable. Try again later please")
             elif code == 404:
-                log.error(u'Anidb error (404) the resource does not exist: %s', url + path)
-                raise AnidbResourceNotExistException(u'Anidb error (404) the resource does not exist: %s', url + path)
+                log.error(u'Anidb error (404) the resource does not exist: %s', url)
+                raise AnidbResourceNotExistException(u'Anidb error (404) the resource does not exist: %s', url)
             else:
                 log.error(u'Unknown Anidb request exception. Code error: %s', code)
                 return {}
@@ -121,6 +124,24 @@ class AnidbApi(object):
 
         return resp
 
+    def _parse(self, anime):
+        new_anime = Anime(anime.get('id'))
+
+        new_anime.title[anime.find('title').attrib["{0}lang".format(self.namespace)]] = anime.find('title').text
+        new_anime.picture = anime.find('picture').text
+        for vote_category in ['permanent', 'temporary', 'review']:
+            if hasattr(anime.find('ratings').find(vote_category), 'tag'):
+                new_anime.ratings[vote_category]['count'] = anime.find('ratings').find(vote_category).get('count')
+                new_anime.ratings[vote_category]['votes'] = anime.find('ratings').find(vote_category).text
+        new_anime.startdate = anime.find('startdate').text if hasattr(anime.find('startdate'), 'tag') else None
+        new_anime.enddate = anime.find('enddate').text if hasattr(anime.find('enddate'), 'tag') else None
+#         if "type" in anime.attrib:
+#             t.type = anime.attrib["type"]
+#         if "exact" in anime.attrib:
+#             t.exact = True
+
+        return new_anime
+
     def query(self, request, aid=None):
         """Get a list of anime shows using a request object.
         When a aid is provided only the show with the anidb aid (anime id) is returned.
@@ -128,6 +149,7 @@ class AnidbApi(object):
         :param anime_list: One of the categories from an AnimeLists object QUERY_CATEGORIES, QUERY_ANIME, QUERY_RANDOMRECOMMENDATION, QUERY_HOT
         :param aid: Filter the list of animes using this aid.
         """
+        result = []
 
         if request in AnimeLists.AIDSEARCH and try_int(aid):
             params = {'request': request, 'aid': aid}
@@ -136,6 +158,9 @@ class AnidbApi(object):
         else:
             raise AnidbInvalidQueryParams()
 
-        result = self._request(params, method='GET')
+        response = self._request(params, method='GET')
+
+        for anime in response:
+            result.append(self._parse(anime))
 
         return result
