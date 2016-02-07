@@ -40,22 +40,19 @@ class AnidbPopular(object):  # pylint: disable=too-few-public-methods
     def _create_recommended_show(self, show_obj):
         """creates the RecommendedShow object from the returned showobj"""
         try:
-            tvdb_id = TvDBMap().get_tvdb_for_anidb(show_obj.get('id')) if show_obj.get('id') else None
+            tvdb_id = TvDBMap().get_tvdb_for_anidb(show_obj.aid)
         except Exception:
             tvdb_id = None
-            logger.log("Couldn't map aid [{0}] to tvdbid ".format(self.id), logger.WARNING)
+            logger.log("Couldn't map aid [{0}] to tvdbid ".format(show_obj.aid), logger.WARNING)
             return
 
-        rec_show = RecommendedShow(self,
-                                   show_obj.get('id'), show_obj.findall('title')[0].text,
-                                   1,  # indexer
-                                   tvdb_id,
-                                   rating=str(float(show_obj.find('ratings').find('permanent').text) * 10),
-                                   votes=str(try_int(show_obj.find('ratings').find('permanent').get('count'), 0)),
-                                   image_href='https://anidb.net/perl-bin/animedb.pl?show=anime&aid={0}'.format(show_obj.get('id')))
+        rec_show = RecommendedShow(self, show_obj.aid, show_obj.title['x-jat'], 1, tvdb_id,
+                                   rating=show_obj.ratings['permanent']['votes'],
+                                   votes=show_obj.ratings['permanent']['count'],
+                                   image_href=show_obj.url)
 
         # Check cache or get and save image
-        rec_show.cache_image("http://img7.anidb.net/pics/anime/{0}".format(show_obj.find('picture').text))
+        rec_show.cache_image("http://img7.anidb.net/pics/anime/{0}".format(show_obj.picture))
 
         return rec_show
 
