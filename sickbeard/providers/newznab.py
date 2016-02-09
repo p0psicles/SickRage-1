@@ -314,6 +314,7 @@ class NewznabProvider(NZBProvider):  # pylint: disable=too-many-instance-attribu
                     except AttributeError:
                         torznab = False
 
+                    logger.log(u"Search returned {items} items".format(items=len(html.find_all('item'))), logger.INFO)
                     for item in html.find_all('item'):
                         try:
                             title = item.title.get_text(strip=True)
