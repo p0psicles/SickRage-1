@@ -205,7 +205,7 @@ class GenericProvider(object):  # pylint: disable=too-many-instance-attributes
                             logger.DEBUG
                         )
                         add_cache_entry = True
-                    elif not [ep for ep in episodes if parse_result.season_number == (ep.season, ep.scene_season)[ep.show.is_scene]]:
+                    elif not [ep for ep in episodes if parse_result.season_number == ep.season]:
                         logger.log(
                             u'This season result %s is for a season we are not searching for, skipping it' % title,
                             logger.DEBUG
@@ -217,8 +217,8 @@ class GenericProvider(object):  # pylint: disable=too-many-instance-attributes
                         # pylint: disable=bad-continuation
                         parse_result.season_number is not None,
                         parse_result.episode_numbers,
-                        [ep for ep in episodes if (ep.season, ep.scene_season)[ep.show.is_scene] ==
-                         parse_result.season_number and (ep.episode, ep.scene_episode)[ep.show.is_scene] in parse_result.episode_numbers]
+                        [ep for ep in episodes if ep.season == parse_result.season_number and
+                         ep.episode in parse_result.episode_numbers]
                     ]):
 
                         logger.log(
