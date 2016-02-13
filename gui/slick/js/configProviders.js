@@ -152,15 +152,15 @@ $(document).ready(function(){
             $('#newznab_cat_update').attr('disabled','disabled');
             $('#newznabcapdiv').hide();
 
-            $("#newznab_cat option").each(function() {
-                $(this).remove();
-                return;
-            });
+//            $("#newznab_cat option").each(function() {
+//                $(this).remove();
+//                return;
+//            });
 
-            $("#newznab_cap option").each(function() {
-                $(this).remove();
-                return;
-            });
+//            $("#newznab_cap option").each(function() {
+//                $(this).remove();
+//                return;
+//            });
 
         } else {
             data = newznabProviders[selectedProvider][1];
@@ -185,15 +185,16 @@ $(document).ready(function(){
         }
 
         // Update the category select box (on the right)
-        var newCatOptions = [];
-        if (rrcat) {
-            rrcat.forEach(function (cat) {
-                if (cat !== '') {
-                    newCatOptions.push({text : cat, value : cat});
-                }
-            });
-            $("#newznab_cat").replaceOptions(newCatOptions);
-        }
+//        var newCatOptions = [];
+//        if (rrcat) {
+//            rrcat.forEach(function (cat) {
+//                if (cat !== '') {
+//                    newCatOptions.push({text : cat, value : cat});
+//                }
+//            });
+//
+//            $("#newznab_cap").replaceOptions(newCatOptions);
+//        }
 
         if (selectedProvider === 'addNewznab') {
             $('#newznab_name').removeAttr("disabled");
@@ -232,15 +233,19 @@ $(document).ready(function(){
         //Loop through the array and if currently selected newznab provider name matches one in the array, use it to
         //update the capabilities select box (on the left).
         if (selectedProvider[0]) {
+            selectdProvCats = selectedProvider[3];
             $.fn.newznabProvidersCapabilities.forEach(function(newzNabCap) {
-                if (newzNabCap.name && newzNabCap.name === selectedProvider[0] && newzNabCap.categories instanceof Array) {
+                if (newzNabCap.name && newzNabCap.name === selectedProvider[0] && 
+                        newzNabCap.name === $('#editANewznabProvider').val() && 
+                        newzNabCap.categories instanceof Array) {
                     var newCapOptions = [];
                     newzNabCap.categories.forEach(function(categorySet) {
                         if (categorySet.id && categorySet.name) {
                             newCapOptions.push({value : categorySet.id, text : categorySet.name + "(" + categorySet.id + ")"});
                         }
                     });
-                    $("#newznab_cap").replaceOptions(newCapOptions);
+                    //debugger; //add the current cats
+                    $("#newznab_cap").replaceOptions(newCapOptions, selectdProvCats.split(','));
                 }
             });
         }
@@ -360,7 +365,7 @@ $(document).ready(function(){
         var url = $('#newznab_url').val();
         var key = $('#newznab_key').val();
 
-        var cat = $('#newznab_cat option').map(function(i, opt) {
+        var cat = $('#newznab_cap option').map(function(i, opt) {
             return $(opt).text();
         }).toArray().join(',');
 
@@ -397,13 +402,23 @@ $(document).ready(function(){
         $(this).refreshProviderList();
     });
 
+    $(this).on('change', '#newznab_cap', function(){
+        $.fn.syncCaps();
+        //var selected = $(e.target).val();
+        //console.dir(selected);
+    }); 
+    
     $('#newznab_cat_update').click(function(){
+        $.fn.syncCaps();
+    });
+    
+    $.fn.syncCaps = function() {
         console.debug('Clicked Button');
-
+        //debugger;
         // Maybe check if there is anything selected?
-        $("#newznab_cat option").each(function() {
-            $(this).remove();
-        });
+        //$("#newznab_cap option").each(function() {
+        //    $(this).remove();
+        //});
 
         var newOptions = [];
 
@@ -414,8 +429,8 @@ $(document).ready(function(){
             console.debug(selectedCat);
             newOptions.push({text: selectedCat, value: selectedCat});
         });
-
-        $("#newznab_cat").replaceOptions(newOptions);
+        
+        //$("#newznab_cat").replaceOptions(newOptions);
 
         var selectedProvider = $("#editANewznabProvider :selected").val();
         if (selectedProvider === "addNewznab"){
@@ -425,14 +440,14 @@ $(document).ready(function(){
         var url = $('#newznab_url').val();
         var key = $('#newznab_key').val();
 
-        var cat = $('#newznab_cat option').map(function(i, opt) {
-            return $(opt).text();
+        var cat = $('#newznab_cap :selected').map(function(i, opt) {
+            return $(opt).text().match(/\((\d+)\)/)[1];
         }).toArray().join(',');
 
-        $("#newznab_cat option:not([value])").remove();
+        $("#newznab_cap option:not([value])").remove();
 
         $(this).updateProvider(selectedProvider, url, key, cat);
-    });
+    };
 
 
     $('#newznab_add').click(function(){
@@ -441,7 +456,7 @@ $(document).ready(function(){
         var key = $.trim($('#newznab_key').val());
         //var cat = $.trim($('#newznab_cat').val());
 
-        var cat = $.trim($('#newznab_cat option').map(function(i, opt) {
+        var cat = $.trim($('#newznab_cap option').map(function(i, opt) {
             return $(opt).text();
         }).toArray().join(','));
 
@@ -540,14 +555,23 @@ $(document).ready(function(){
         $(this).makeTorrentOptionString(providerId);
     });
 
-    $.fn.replaceOptions = function(options) {
+    $.fn.replaceOptions = function(options, selectedValues) {
         var self, $option;
+        if (!selectedValues) {
+            values = options.map(function (obj) {return obj.value});
+        } else {
+            values = selectedValues;
+        }
+        
 
         this.empty();
         self = this;
 
         $.each(options, function(index, option) {
             $option = $("<option></option>").attr("value", option.value).text(option.text);
+            if (values && $.inArray(option.value, values) > -1) {
+                $($option).attr("selected", 1)
+            }
             self.append($option);
         });
     };

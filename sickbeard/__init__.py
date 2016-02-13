@@ -1372,6 +1372,11 @@ def initialize(consoleLogging=True):  # pylint: disable=too-many-locals, too-man
                                                                        curNzbProvider.get_id() + '_enable_backlog',
                                                                        curNzbProvider.supports_backlog))
 
+            if hasattr(curNzbProvider, 'categories'):
+                curNzbProvider.categories = check_setting_int(CFG, curNzbProvider.get_id().upper(),
+                                                          curNzbProvider.get_id() + '_categories',
+                                                          '5030,5040')
+
         if not ek(os.path.isfile, CONFIG_FILE):
             logger.log(u"Unable to find '" + CONFIG_FILE + "', all settings will be default!", logger.DEBUG)
             save_config()
@@ -1855,6 +1860,8 @@ def save_config():  # pylint: disable=too-many-statements, too-many-branches
         if hasattr(curNzbProvider, 'enable_backlog'):
             new_config[curNzbProvider.get_id().upper()][curNzbProvider.get_id() + '_enable_backlog'] = int(
                 curNzbProvider.enable_backlog)
+        if hasattr(curNzbProvider, 'categories'):
+            new_config[curNzbProvider.get_id().upper()][curNzbProvider.get_id() + '_categories'] = curNzbProvider.categories
 
     new_config['NZBs'] = {}
     new_config['NZBs']['nzbs'] = int(NZBS)

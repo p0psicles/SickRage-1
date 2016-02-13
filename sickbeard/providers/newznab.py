@@ -41,7 +41,7 @@ class NewznabProvider(NZBProvider):  # pylint: disable=too-many-instance-attribu
     """
     # pylint: disable=too-many-arguments
 
-    def __init__(self, name, url, key='0', catIDs='5030,5040', search_mode='eponly',
+    def __init__(self, name, url, key='0', categories='5030,5040', search_mode='eponly',
                  search_fallback=False, enable_daily=True, enable_backlog=False):
 
         NZBProvider.__init__(self, name)
@@ -58,7 +58,7 @@ class NewznabProvider(NZBProvider):  # pylint: disable=too-many-instance-attribu
         self.needs_auth = self.key != '0'
         self.public = not self.needs_auth
 
-        self.catIDs = catIDs if catIDs else '5030,5040'
+        self.categories = categories if categories else '5030,5040'
 
         self.default = False
 
@@ -68,7 +68,7 @@ class NewznabProvider(NZBProvider):  # pylint: disable=too-many-instance-attribu
         """
         Generates a '|' delimited string of instance attributes, for saving to config.ini
         """
-        return self.name + '|' + self.url + '|' + self.key + '|' + self.catIDs + '|' + str(
+        return self.name + '|' + self.url + '|' + self.key + '|' + self.categories + '|' + str(
             int(self.enabled)) + '|' + self.search_mode + '|' + str(int(self.search_fallback)) + '|' + str(
                 int(self.enable_daily)) + '|' + str(int(self.enable_backlog))
 
@@ -105,7 +105,7 @@ class NewznabProvider(NZBProvider):  # pylint: disable=too-many-instance-attribu
                 providers_dict[default.name].search_fallback = default.search_fallback
                 providers_dict[default.name].enable_daily = default.enable_daily
                 providers_dict[default.name].enable_backlog = default.enable_backlog
-                providers_dict[default.name].catIDs = default.catIDs
+                providers_dict[default.name].categories = default.categories
 
         return [x for x in providers_list if x]
 
@@ -164,7 +164,7 @@ class NewznabProvider(NZBProvider):  # pylint: disable=too-many-instance-attribu
 
     @staticmethod
     def _get_default_providers():
-        # name|url|key|catIDs|enabled|search_mode|search_fallback|enable_daily|enable_backlog
+        # name|url|key|categories|enabled|search_mode|search_fallback|enable_daily|enable_backlog
         return 'NZB.Cat|https://nzb.cat/||5030,5040,5010|0|eponly|1|1|1!!!' + \
             'NZBGeek|https://api.nzbgeek.info/||5030,5040|0|eponly|0|0|0!!!' + \
             'NZBs.org|https://nzbs.org/||5030,5040|0|eponly|0|0|0!!!' + \
@@ -227,7 +227,7 @@ class NewznabProvider(NZBProvider):  # pylint: disable=too-many-instance-attribu
             return None
 
         new_provider = NewznabProvider(
-            name, url, key=key, catIDs=category_ids, search_mode=search_mode, search_fallback=search_fallback,
+            name, url, key=key, categories=category_ids, search_mode=search_mode, search_fallback=search_fallback,
             enable_daily=enable_daily, enable_backlog=enable_backlog
         )
         new_provider.enabled = enabled == '1'
@@ -249,7 +249,7 @@ class NewznabProvider(NZBProvider):  # pylint: disable=too-many-instance-attribu
                 "t": "tvsearch",
                 "limit": 100,
                 "offset": 0,
-                "cat": self.catIDs.strip(', ') or '5030,5040',
+                "cat": self.categories.strip(', ') or '5030,5040',
                 'maxage': sickbeard.USENET_RETENTION
             }
 
