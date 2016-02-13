@@ -11,8 +11,8 @@ $(document).ready(function(){
     % if sickbeard.USE_NZBS:
         var show_nzb_providers = ${("false", "true")[bool(sickbeard.USE_NZBS)]};
         % for curNewznabProvider in sickbeard.newznabProviderList:
-        $(this).addProvider('${curNewznabProvider.get_id()}', '${curNewznabProvider.name}', '${curNewznabProvider.url}', '${curNewznabProvider.key}', '${curNewznabProvider.catIDs}', ${int(curNewznabProvider.default)}, show_nzb_providers);
-        % endfor
+        $(this).addProvider('${curNewznabProvider.get_id()}', '${curNewznabProvider.name}', '${curNewznabProvider.url}', '${curNewznabProvider.key}', '${curNewznabProvider.catIDs}', ${int(curNewznabProvider.default)}, show_nzb_providers, ${int(curNewznabProvider.is_enabled())});
+        % endfor    
     % endif
     % if sickbeard.USE_TORRENTS:
         % for curTorrentRssProvider in sickbeard.torrentRssProviderList:
@@ -20,7 +20,7 @@ $(document).ready(function(){
         % endfor
     % endif
 });
-$('#config-components').tabs();
+$('#config-components').tabs()
 </script>
 </%block>
 <%block name="content">
