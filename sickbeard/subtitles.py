@@ -2,7 +2,7 @@
 # Author: medariox <dariox@gmx.com>,
 # based on Antoine Bertin's <diaoulael@gmail.com> work
 # and originally written by Nyaran <nyayukko@gmail.com>
-# URL: https://github.com/SickRage/SickRage/
+# URL: https://github.com/PyMedusa/SickRage/
 #
 # This file is part of SickRage.
 #
@@ -384,7 +384,8 @@ class SubtitlesFinder(object):
                         if subtitle_language not in sickbeard.SUBTITLES_LANGUAGES:
                             try:
                                 os.remove(os.path.join(root, filename))
-                                logger.log(u"Deleted '{}' because we don't want subtitle language '{}'. We only want '{}' language(s)".format(filename, subtitle_language, ', '.join(sickbeard.SUBTITLES_LANGUAGES)), logger.DEBUG)
+                                logger.log(u"Deleted '{}' because we don't want subtitle language '{}'. We only want '{}' language(s)".format
+                                           (filename, subtitle_language, ','.join(sickbeard.SUBTITLES_LANGUAGES)), logger.DEBUG)
                             except Exception as error:
                                 logger.log(u"Couldn't delete subtitle: {}. Error: {}".format(filename, ex(error)), logger.DEBUG)
 

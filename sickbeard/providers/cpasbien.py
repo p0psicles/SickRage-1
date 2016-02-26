@@ -1,7 +1,7 @@
 # coding=utf-8
 # Author: Guillaume Serre <guillaume.serre@gmail.com>
 #
-# URL: https://sickrage.github.io
+
 #
 # This file is part of SickRage.
 #
@@ -57,7 +57,7 @@ class CpasbienProvider(TorrentProvider):
                     search_url = self.url + '/view_cat.php?categorie=series&trie=date-d'
 
                 logger.log(u"Search URL: %s" % search_url, logger.DEBUG)
-                data = self.get_url(search_url)
+                data = self.get_url(search_url, echo=False, returns='text')
                 if not data:
                     continue
 

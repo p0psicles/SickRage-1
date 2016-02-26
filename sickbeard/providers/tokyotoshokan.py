@@ -1,7 +1,7 @@
 # coding=utf-8
 # Author: Mr_Orange
 #
-# URL: https://sickrage.github.io
+
 #
 # This file is part of SickRage.
 #
@@ -71,7 +71,7 @@ class TokyoToshokanProvider(TorrentProvider):  # pylint: disable=too-many-instan
                 }
 
                 logger.log(u"Search URL: %s" % self.urls['search'] + '?' + urlencode(search_params), logger.DEBUG)
-                data = self.get_url(self.urls['search'], params=search_params)
+                data = self.get_url(self.urls['search'], params=search_params, echo=False, returns='text')
                 if not data:
                     continue
 

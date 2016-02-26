@@ -1,7 +1,7 @@
 # coding=utf-8
 # Author: Idan Gutman
 #
-# URL: https://sickrage.github.io
+
 #
 # This file is part of SickRage.
 #
@@ -121,7 +121,7 @@ class FreshOnTVProvider(TorrentProvider):  # pylint: disable=too-many-instance-a
 
                 search_url = self.urls['search'] % (freeleech, search_string)
                 logger.log(u"Search URL: %s" % search_url, logger.DEBUG)
-                init_html = self.get_url(search_url)
+                init_html = self.get_url(search_url, echo=False, returns='text')
                 max_page_number = 0
 
                 if not init_html:

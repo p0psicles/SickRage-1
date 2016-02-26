@@ -138,7 +138,7 @@ GIT_PASSWORD = None
 GIT_PATH = None
 DEVELOPER = False
 
-NEWS_URL = 'http://sickrage.github.io/sickrage-news/news.md'
+NEWS_URL = 'https://api.pymedusa.com/news.md'
 NEWS_LAST_READ = None
 NEWS_LATEST = None
 NEWS_UNREAD = 0
@@ -723,7 +723,7 @@ def initialize(consoleLogging=True):  # pylint: disable=too-many-locals, too-man
                                            'https://github.com/%s/%s.git' % (GIT_ORG, GIT_REPO))
 
         if 'sickragetv' in GIT_REMOTE_URL.lower():
-            GIT_REMOTE_URL = 'https://github.com/SickRage/SickRage.git'
+            GIT_REMOTE_URL = 'https://github.com/PyMedusa/SickRage.git'
 
         # current commit hash
         CUR_COMMIT_HASH = check_setting_str(CFG, 'General', 'cur_commit_hash', '')
@@ -1424,17 +1424,17 @@ def initialize(consoleLogging=True):  # pylint: disable=too-many-locals, too-man
                                                     silent=False)
 
         showQueueScheduler = scheduler.Scheduler(show_queue.ShowQueue(),
-                                                 cycleTime=datetime.timedelta(seconds=5),
+                                                 cycleTime=datetime.timedelta(seconds=3),
                                                  threadName="SHOWQUEUE")
 
         showUpdateScheduler = scheduler.Scheduler(showUpdater.ShowUpdater(),
-                                                  cycleTime=datetime.timedelta(hours=24),
+                                                  cycleTime=datetime.timedelta(hours=1),
                                                   threadName="SHOWUPDATER",
                                                   start_time=datetime.time(hour=SHOWUPDATE_HOUR, minute=random.randint(0, 59)))
 
         # searchers
         searchQueueScheduler = scheduler.Scheduler(search_queue.SearchQueue(),
-                                                   cycleTime=datetime.timedelta(seconds=5),
+                                                   cycleTime=datetime.timedelta(seconds=3),
                                                    threadName="SEARCHQUEUE")
 
         # TODO: update_interval should take last daily/backlog times into account!

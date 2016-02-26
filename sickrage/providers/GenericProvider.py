@@ -1,8 +1,8 @@
 # coding=utf-8
 # This file is part of SickRage.
 #
-# URL: https://sickrage.github.io
-# Git: https://github.com/SickRage/SickRage.git
+
+# Git: https://github.com/PyMedusa/SickRage.git
 #
 # SickRage is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -344,7 +344,6 @@ class GenericProvider(object):  # pylint: disable=too-many-instance-attributes
 
     @staticmethod
     def get_url_hook(response, **kwargs):
-        _ = kwargs
         logger.log(u'{} URL: {} [Status: {}]'.format
                    (response.request.method, response.request.url, response.status_code), logger.DEBUG)
 
@@ -352,7 +351,8 @@ class GenericProvider(object):  # pylint: disable=too-many-instance-attributes
             logger.log(u'With post data: {}'.format(response.request.body), logger.DEBUG)
 
     def get_url(self, url, post_data=None, params=None, timeout=30, json=False, need_bytes=False, **kwargs):  # pylint: disable=too-many-arguments,
-        kwargs['hooks'] = {'response': self.get_url_hook}
+        if kwargs.pop('echo', True):
+            kwargs['hooks'] = {'response': self.get_url_hook}
         return getURL(url, post_data, params, self.headers, timeout, self.session, json, need_bytes, **kwargs)
 
     def image_name(self):

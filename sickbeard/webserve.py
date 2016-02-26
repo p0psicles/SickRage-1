@@ -1223,7 +1223,7 @@ class Home(WebRoot):
     def displayShow(self, show=None):
         # todo: add more comprehensive show validation
         try:
-            show = int(show)  # fails if show id ends in a period SickRage/sickrage-issues#65
+            show = int(show)  # fails if show id ends in a period PyMedusa/SickRage-issues#65
             showObj = Show.find(sickbeard.showList, show)
         except (ValueError, TypeError):
             return self._genericMessage("Error", "Invalid show ID: %s" % str(show))
@@ -2234,10 +2234,10 @@ class HomeChangeLog(Home):
 
     def index(self):
         try:
-            changes = helpers.getURL('http://sickrage.github.io/sickrage-news/CHANGES.md', session=requests.Session(), returns='text')
+            changes = helpers.getURL('https://api.pymedusa.com/changelog.md', session=requests.Session(), returns='text')
         except Exception:
             logger.log(u'Could not load changes from repo, giving a link!', logger.DEBUG)
-            changes = 'Could not load changes from the repo. [Click here for CHANGES.md](http://sickrage.github.io/sickrage-news/CHANGES.md)'
+            changes = 'Could not load changes from the repo. [Click here for CHANGES.md](https://raw.githubusercontent.com/pymedusa/sickrage.github.io/master/sickrage-news/CHANGES.md)'
 
         t = PageTemplate(rh=self, filename="markdown.mako")
         data = markdown2.markdown(changes if changes else "The was a problem connecting to github, please refresh and try again", extras=['header-ids'])
@@ -5225,7 +5225,7 @@ class ErrorLogs(WebRoot):
 
         return self.redirect("/errorlogs/viewlog/")
 
-    def viewlog(self, minLevel=logger.INFO, logFilter="<NONE>", logSearch=None, maxLines=500):
+    def viewlog(self, minLevel=logger.INFO, logFilter="<NONE>", logSearch=None, maxLines=1000):
 
         def Get_Data(Levelmin, data_in, lines_in, regex, Filter, Search, mlines):
 
@@ -5241,8 +5241,6 @@ class ErrorLogs(WebRoot):
                 if match:
                     level = match.group(7)
                     logName = match.group(8)
-                    if not sickbeard.DEBUG and (level == 'DEBUG' or level == 'DB'):
-                        continue
                     if level not in logger.LOGGING_LEVELS:
                         lastLine = False
                         continue
@@ -5285,6 +5283,10 @@ class ErrorLogs(WebRoot):
             'SEARCHQUEUE-MANUAL': u'Search Queue (Manual)',
             'SEARCHQUEUE-RETRY': u'Search Queue (Retry/Failed)',
             'SEARCHQUEUE-RSS': u'Search Queue (RSS)',
+            'SHOWQUEUE-FORCE-UPDATE': u'Search Queue (Forced Update)',
+            'SHOWQUEUE-UPDATE': u'Search Queue (Update)',
+            'SHOWQUEUE-REFRESH': u'Search Queue (Refresh)',
+            'SHOWQUEUE-FORCE-REFRESH': u'Search Queue (Forced Refresh)',
             'FINDPROPERS': u'Find Propers',
             'POSTPROCESSER': u'Postprocesser',
             'FINDSUBTITLES': u'Find Subtitles',

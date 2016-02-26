@@ -1,7 +1,7 @@
 # coding=utf-8
 # Author: medariox <dariox@gmx.com>
 # based on Dustyn Gibson's <miigotu@gmail.com> work
-# URL: https://sickrage.github.io
+
 #
 # This file is part of SickRage.
 #
@@ -133,7 +133,7 @@ class GFTrackerProvider(TorrentProvider):  # pylint: disable=too-many-instance-a
                 search_url = "%s?%s" % (self.urls['search'], urlencode(search_params))
                 logger.log(u"Search URL: %s" % search_url, logger.DEBUG)
 
-                data = self.get_url(search_url)
+                data = self.get_url(search_url, echo=False, returns='text')
                 if not data:
                     logger.log(u"No data returned from provider", logger.DEBUG)
                     continue

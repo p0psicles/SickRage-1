@@ -1,7 +1,7 @@
 # coding=utf-8
 # Author: Gonçalo M. (aka duramato/supergonkas) <supergonkas@gmail.com>
 #
-# URL: https://sickrage.github.io
+
 #
 # This file is part of SickRage.
 #
@@ -69,7 +69,7 @@ class LimeTorrentsProvider(TorrentProvider):  # pylint: disable=too-many-instanc
 
                     logger.log(u"Search URL: %s" % search_url, logger.DEBUG)
 
-                    data = self.get_url(search_url)
+                    data = self.get_url(search_url, echo=False, returns='text')
                     if not data:
                         logger.log(u"No data returned from provider", logger.DEBUG)
                         continue

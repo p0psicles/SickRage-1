@@ -2,7 +2,7 @@
 # Author: Idan Gutman
 # Modified by jkaberg, https://github.com/jkaberg for SceneAccess
 # Modified by 7ca for HDSpace
-# URL: https://sickrage.github.io
+
 #
 # This file is part of SickRage.
 #
@@ -105,7 +105,7 @@ class HDSpaceProvider(TorrentProvider):  # pylint: disable=too-many-instance-att
                     logger.log(u"Search string: {}".format(search_string.decode("utf-8")),
                                logger.DEBUG)
 
-                data = self.get_url(search_url)
+                data = self.get_url(search_url, echo=False, returns='text')
                 if not data or 'please try later' in data:
                     logger.log(u"No data returned from provider", logger.DEBUG)
                     continue

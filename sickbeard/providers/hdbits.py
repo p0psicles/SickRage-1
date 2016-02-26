@@ -1,6 +1,6 @@
 # coding=utf-8
 #
-# URL: https://sickrage.github.io
+
 #
 # This file is part of SickRage.
 #
@@ -88,7 +88,7 @@ class HDBitsProvider(TorrentProvider):
 
         self._check_auth()
 
-        parsedJSON = self.get_url(self.urls['search'], post_data=search_params, json=True)
+        parsedJSON = self.get_url(self.urls['search'], post_data=search_params, json=True, echo=False)
         if not parsedJSON:
             return []
 
