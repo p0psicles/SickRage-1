@@ -1433,27 +1433,25 @@ def _setUpSession(session, headers):
 
 class RequestAuth(requests.auth.AuthBase):
     """Attaches Provider Authentication to the given Requests object"""
-    def __init__(self, provider, **auth_settings):
+    def __init__(self, provider):
         # setup any auth-related data here
         self.provider = provider
-        self.login_required = auth_settings.get('login_required')
-        self.min_amount_cookies = auth_settings.get('min_amount_cookies')
-        self.username = auth_settings.get('username')
-        self.password = auth_settings.get('password')
-        self.check_cookie_expired = auth_settings.get('check_cookie_expired')
 
     def __call__(self, r):
         # modify and return the request
-        if self.min_amount_cookies:
-            if len(self.session.cookies) < self.min_amount_cookies:
+        if self.provider.auth_hooks.get('min_amount_cookies'):
+            if len(self.provider.session.cookies) < self.provider.auth_hooks.get('min_amount_cookies'):
                 self.provider.login()
 
-        if self.login_required:
+        if self.provider.auth_hooks.get('login_required'):
             self.provider.login()
 
-        if self.check_cookie_expired:
-            if all([not cookie.is_expired() for cookie in r.cookies]):
+        if self.provider.auth_hooks.get('check_cookie_expired'):
+            if all([not cookie.is_expired() for cookie in self.provider.session.cookies]):
                 self.provider.login()
+
+        if self.provider.auth_hooks.get('custom_auth_check'):
+            self.provider.auth_hooks.get('custom_auth_check')()
 
         return r
 

@@ -50,6 +50,7 @@ class TVChaosUKProvider(TorrentProvider):  # pylint: disable=too-many-instance-a
             'index': self.url + 'index.php',
             'search': self.url + 'browse.php'
         }
+        self.auth_hooks = {'min_amount_cookies': 3, 'check_cookie_expired': True}
 
         # Proper Strings
 

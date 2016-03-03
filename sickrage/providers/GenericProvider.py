@@ -30,7 +30,7 @@ from sickbeard import logger
 from sickbeard.classes import Proper, SearchResult
 from sickbeard.common import MULTI_EP_RESULT, Quality, SEASON_RESULT, UA_POOL
 from sickbeard.db import DBConnection
-from sickbeard.helpers import download_file, getURL, remove_file_failed
+from sickbeard.helpers import download_file, getURL, remove_file_failed, RequestAuth
 from sickbeard.name_parser.parser import InvalidNameException, InvalidShowException, NameParser
 from sickbeard.show_name_helpers import allPossibleShowNames
 from sickbeard.tvcache import TVCache
@@ -70,6 +70,11 @@ class GenericProvider(object):  # pylint: disable=too-many-instance-attributes
         self.supports_backlog = True
         self.url = ''
         self.urls = {}
+        self.auth_hooks = {'login_required': None,
+                           'min_amount_cookies': None,
+                           'check_cookie_expired': None,
+                           'username': None, 'password': None,
+                           'custom_auth_check': None}
 
         shuffle(self.bt_cache_urls)
 
@@ -352,10 +357,17 @@ class GenericProvider(object):  # pylint: disable=too-many-instance-attributes
 
         return result
 
-    def get_auth_hook(self, **kwargs):
-        from sickbeard.helpers import RequestAuth
-        args = {'login_required': True}
-        return RequestAuth(self, **args)
+    def _custom_auth_check(self):
+        """ Use this function if you'd like to have some control over the authentication checks
+        before searching the provider or snatching a result. The _custom_auth_check is hooked through _get_auth_hook()
+        to the helpers.getURL() function.
+        """
+        return
+
+    def _get_auth_hook(self, **kwargs):
+        """ This hooks the RequestAuth object to the getURL function """
+        self.auth_hooks['custom_auth_check'] = self._custom_auth_check
+        return RequestAuth(self)
 
     @staticmethod
     def get_url_hook(response, **kwargs):
@@ -369,7 +381,7 @@ class GenericProvider(object):  # pylint: disable=too-many-instance-attributes
         if kwargs.pop('echo', True):
             kwargs['hooks'] = {'response': self.get_url_hook}
 
-        return getURL(url, post_data, params, self.headers, timeout, self.session, json, need_bytes, self.get_auth_hook(), **kwargs)
+        return getURL(url, post_data, params, self.headers, timeout, self.session, json, need_bytes, self._get_auth_hook(), **kwargs)
 
     def image_name(self):
         return self.get_id() + '.png'
