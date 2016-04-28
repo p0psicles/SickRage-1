@@ -2798,7 +2798,8 @@ class HomeAddShows(Home):
             page_title = "Most Anticipated Shows"
 
         t = PageTemplate(rh=self, filename="addShows_trendingShows.mako")
-        return t.render(title=page_title, header=page_title, enable_anime_options=False,
+        return t.render(title=page_title, header=page_title,
+                        enable_anime_options=True, blacklist=[], whitelist=[], groups=[],
                         traktList=traktList, controller="addShows", action="trendingShows")
 
     def getTrendingShows(self, traktList=None):
