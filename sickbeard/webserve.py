@@ -59,7 +59,6 @@ from sickbeard.common import (
     SNATCHED, UNAIRED, IGNORED, WANTED, FAILED, SKIPPED
 )
 from sickbeard.helpers import get_showname_from_indexer
-from sickbeard.imdbPopular import imdb_popular
 from sickbeard.indexers.indexer_exceptions import indexer_exception
 from sickbeard.manual_search import (
     collectEpisodesFromSearchThread, get_provider_cache_results, getEpisode, update_finished_search_queue_item,
@@ -75,17 +74,12 @@ from sickbeard.scene_numbering import (
 from sickbeard.versionChecker import CheckVersion
 from sickbeard.webapi import function_mapper
 
-from sickbeard.imdbPopular import imdb_popular
-from sickbeard.helpers import get_showname_from_indexer
 from sickrage.show.recommendations.trakt import TraktPopular
 
-from dateutil import tz
-from unrar2 import RarFile
-import adba
 from libtrakt.trakt import TraktApi
-from libtrakt.exceptions import TraktException
 from simpleanidb import REQUEST_HOT
 from sickrage.show.recommendations.anidb import AnidbPopular
+from sickrage.show.recommendations.imdb import ImdbPopular
 from sickrage.helper.common import sanitize_filename, try_int, episode_num, enabled_providers
 from sickrage.helper.encoding import ek, ss
 from sickrage.helper.exceptions import (
@@ -107,7 +101,6 @@ from sickrage.show.Show import Show
 from sickrage.system.Restart import Restart
 from sickrage.system.Shutdown import Shutdown
 from sickbeard.tv import TVEpisode
-from sickbeard.classes import SearchResult
 
 
 # Conditional imports
@@ -2853,19 +2846,19 @@ class HomeAddShows(Home):
         """
         Fetches data from IMDB to show a list of popular shows.
         """
-        t = PageTemplate(rh=self, filename="addShows_popularShows.mako")
+        t = PageTemplate(rh=self, filename="addShows_recommended.mako")
         e = None
 
         try:
-            popular_shows = imdb_popular.fetch_popular_shows()
+            recommended_shows = ImdbPopular().fetch_popular_shows()
         except Exception as e:
             # print traceback.format_exc()
-            popular_shows = None
+            recommended_shows = None
 
         return t.render(title="Popular Shows", header="Popular Shows",
-                        popular_shows=popular_shows, imdb_exception=e,
-                        topmenu="home",
-                        controller="addShows", action="popularShows")
+                        recommended_shows=recommended_shows, exception=e, groups=[],
+                        topmenu="home", enable_anime_options=True, blacklist=[], whitelist=[],
+                        controller="addShows", action="recommendedShows")
 
     def popularAnime(self, list_type=REQUEST_HOT):
         """
