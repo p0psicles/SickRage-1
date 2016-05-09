@@ -200,7 +200,7 @@ class ShowQueue(generic_queue.GenericQueue):
 
         if self.isBeingRemoved(show):
             raise CantRemoveShowException(u'[{!s}]: Show is already being removed'.format(show.indexerid))
-            
+
         if self.isInRemoveQueue(show):
             raise CantRemoveShowException(u'[{!s}]: Show is already queued to be removed'.format(show.indexerid))
 
@@ -740,12 +740,15 @@ class QueueItemRemove(ShowQueueItem):
     def run(self):
         ShowQueueItem.run(self)
         logger.log(u"Removing %s" % self.show.name)
-        self.show.deleteShow(full=self.full)
 
+        # Need to first remove the episodes from the Trakt collection, because we need the list of
+        # Episodes from the db to know which eps to remove.
         if sickbeard.USE_TRAKT:
             try:
                 sickbeard.traktCheckerScheduler.action.remove_show_trakt_library(self.show)
             except Exception as e:
                 logger.log(u"Unable to delete show '{}' from Trakt. Please remove manually otherwise it will be added again. Error: {}".format(self.show.name, ex(e)), logger.WARNING)
+
+        self.show.deleteShow(full=self.full)
 
         self.finish()
